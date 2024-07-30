@@ -10,7 +10,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), my_gl(new glView()) {
   but = new QPushButton("Upload model");
-
+  connect(but, &QPushButton::clicked, this, &MainWindow::openFileDialog);
   scale_sub = new QPushButton("-");
   scale_add = new QPushButton("+");
   slrotate_x = new QScrollBar(Qt::Horizontal);
@@ -117,6 +117,16 @@ MainWindow::MainWindow(QWidget *parent)
   main_layout->addWidget(rotate_group);
   main_layout->addWidget(move_group);
   setCentralWidget(centralWidget);
+}
+
+void MainWindow::openFileDialog() {
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "",
+                                                  tr("All Files (*.*)"));
+  if (!fileName.isEmpty()) {
+    filePath = fileName;
+    // Вы можете использовать filePath для загрузки или обработки файла
+    qDebug() << "Selected file path:" << filePath;
+  }
 }
 
 MainWindow::~MainWindow() {

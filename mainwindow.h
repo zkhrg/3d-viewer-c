@@ -1,6 +1,5 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QGroupBox>
 #include <QMainWindow>
 #include <QPushButton>
@@ -14,6 +13,8 @@ class MainWindow : public QMainWindow {
  public:
   MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
+ private slots:
+  void openFileDialog();
 
  private:
   glView *my_gl;
@@ -21,6 +22,7 @@ class MainWindow : public QMainWindow {
   QScrollBar *slscale, *slrotate_x, *slrotate_y, *slrotate_z, *slmove_x,
       *slmove_y, *slmove_z;
   QGroupBox *groupBox;
+  QString filePath;
 };
 
 #endif  // MAINWINDOW_H

@@ -1,5 +1,5 @@
 #include <QApplication>
-
+#define GL_SILENCE_DEPRECATION
 #include "mainwindow.h"
 
 int main(int argc, char *argv[]) {
