@@ -3,12 +3,13 @@
 #include <QMatrix4x4>
 #include <QTimerEvent>
 #include <QVector3D>
+#include <iostream>
 
 glView::glView()
     : vertexBuffer(QOpenGLBuffer::VertexBuffer),
       indexBuffer(QOpenGLBuffer::IndexBuffer),
-      rotationAngleX(25.0f),
-      rotationAngleY(25.0f) {
+      rotationAngleX(0.0f),
+      rotationAngleY(0.0f) {
   setFixedSize(650, 650);
 }
 
@@ -16,22 +17,15 @@ void glView::initializeGL() {
   initializeOpenGLFunctions();
 
   // Вершины куба
-  QVector<QVector3D> vertices = {
-      {-0.5f, -0.5f, 0.5f},  // 0
-      {0.5f, -0.5f, 0.5f},   // 1
-      {0.5f, 0.5f, 0.5f},    // 2
-      {-0.5f, 0.5f, 0.5f},   // 3
-      {-0.5f, -0.5f, -.5f},  // 4
-      {0.5f, -0.5f, -.5f},   // 5
-      {0.5f, 0.5f, -.5f},    // 6
-      {-0.5f, 0.5f, -.5f}    // 7
-  };
+  QVector<QVector3D> vertices;
+  QVector<GLuint> indices;
+  dot_obj_data dod;
+  parse_dot_obj_file("/Users/diamondp/Desktop/model/model.obj", &dod);
+  FillVertices(vertices, &dod);
+  FillIndices(indices, &dod);
 
-  QVector<GLuint> indices = {
-      0, 1, 1, 2, 2, 3, 3, 0,  // Передняя грань
-      4, 5, 5, 6, 6, 7, 7, 4,  // Задняя грань
-      0, 4, 1, 5, 2, 6, 3, 7   // Соединяющие линии
-  };
+  v_count = dod.v_count;
+  f_count = dod.f_count;
 
   vertexBuffer.create();
   vertexBuffer.bind();
@@ -71,8 +65,8 @@ void glView::paintGL() {
   glLoadMatrixf(mvpMatrix.constData());
 
   vao.bind();
-  glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);  // Отрисовка линий
-  glDrawArrays(GL_POINTS, 0, 8);  // Отрисовка вершин
+  glDrawElements(GL_LINES, f_count, GL_UNSIGNED_INT, nullptr);
+  glDrawArrays(GL_POINTS, 0, v_count);
 }
 
 void glView::setupVertexAttribs() {
@@ -91,6 +85,25 @@ void glView::updateRotation() {
   modelMatrix.setToIdentity();
   modelMatrix.rotate(rotationAngleX, 1.0f, 0.0f, 0.0f);  // Поворот по оси X
   modelMatrix.rotate(rotationAngleY, 0.0f, 1.0f, 0.0f);  // Поворот по оси Y
+}
+
+void glView::FillVertices(QVector<QVector3D>& vertices, dot_obj_data* dod) {
+  vertices.clear();
+  vertices.reserve((int)dod->v_count);
+
+  for (int i = 0; i < (int)dod->v_count * 3; i += 3) {
+    vertices.append(QVector3D(dod->vertices[i], dod->vertices[i + 1],
+                              dod->vertices[i + 2]));
+  }
+}
+
+void glView::FillIndices(QVector<GLuint>& indices, dot_obj_data* dod) {
+  indices.clear();
+  indices.reserve((int)dod->f_count);
+
+  for (int i = 0; i < (int)dod->f_count; i++) {
+    indices.append(static_cast<GLuint>(dod->faces[i]));
+  }
 }
 
 glView::~glView() {
