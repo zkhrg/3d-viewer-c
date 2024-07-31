@@ -151,24 +151,35 @@ void MainWindow::openFileDialog() {
     // Вы можете использовать filePath для загрузки или обработки файла
     qDebug() << "Selected file path:" << filePath;
   }
+  parse_dot_obj_file(filePath.toStdString().c_str(), &(my_gl->dod));
+  my_gl->reinitializeOpenGL();
 }
 
 void MainWindow::xRotateChanged(int val) {
   int delta = val - prev_x_rot;
   qDebug() << "xRotateChanged delta:" << delta;
   prev_x_rot = val;
+  rotate_x(&(my_gl->dod), delta * 4);
+  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
+  my_gl->updateVertexCoordinates(my_gl->vertices);
 }
 
 void MainWindow::yRotateChanged(int val) {
   int delta = val - prev_y_rot;
   qDebug() << "yRotateChanged delta:" << delta;
   prev_y_rot = val;
+  rotate_y(&(my_gl->dod), delta * 4);
+  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
+  my_gl->updateVertexCoordinates(my_gl->vertices);
 }
 
 void MainWindow::zRotateChanged(int val) {
   int delta = val - prev_z_rot;
   qDebug() << "zRotateChanged delta:" << delta;
   prev_z_rot = val;
+  rotate_z(&(my_gl->dod), delta * 4);
+  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
+  my_gl->updateVertexCoordinates(my_gl->vertices);
 }
 
 void MainWindow::xMoveChanged(int val) {

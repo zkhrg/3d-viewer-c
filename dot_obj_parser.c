@@ -1,6 +1,6 @@
 #include "dot_obj_parser.h"
 
-int parse_dot_obj_file(char* filename, dot_obj_data* dod) {
+int parse_dot_obj_file(const char* filename, dot_obj_data* dod) {
   if (!filename || !dod) {
     return ERROR;
   }

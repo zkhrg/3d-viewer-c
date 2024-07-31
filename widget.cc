@@ -7,23 +7,20 @@
 
 glView::glView()
     : vertexBuffer(QOpenGLBuffer::VertexBuffer),
-      indexBuffer(QOpenGLBuffer::IndexBuffer),
-      rotationAngleX(0.0f),
-      rotationAngleY(0.0f) {
+      indexBuffer(QOpenGLBuffer::IndexBuffer) {
   setFixedSize(650, 650);
-  parse_dot_obj_file("/Users/diamondp/Desktop/pik.obj", &dod);
 }
 
 void glView::initializeGL() {
   initializeOpenGLFunctions();
 
-  // move_vertices(&dod, -10, MOVE_X);
-  // move_vertices(&dod, 10, MOVE_Z);
   FillVertices(vertices, &dod);
   FillIndices(indices, &dod);
 
   v_count = dod.v_count;
   f_count = dod.f_count;
+
+  qWarning() << v_count;
 
   vertexBuffer.create();
   vertexBuffer.bind();
@@ -53,9 +50,6 @@ void glView::initializeGL() {
 void glView::paintGL() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // Обновляем матрицу модели
-  updateRotation();
-
   // Задание матрицы проекции и вида
   QMatrix4x4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
@@ -78,12 +72,6 @@ void glView::setupVertexAttribs() {
 
   indexBuffer.bind();
   vao.release();
-}
-
-void glView::updateRotation() {
-  modelMatrix.setToIdentity();
-  modelMatrix.rotate(rotationAngleX, 1.0f, 0.0f, 0.0f);  // Поворот по оси X
-  modelMatrix.rotate(rotationAngleY, 0.0f, 1.0f, 0.0f);  // Поворот по оси Y
 }
 
 void glView::FillVertices(QVector<QVector3D>& vertices, dot_obj_data* dod) {
@@ -118,6 +106,20 @@ void glView::updateVertexCoordinates(const QVector<QVector3D>& vertices) {
   vertexBuffer.release();
 
   update();
+}
+
+void glView::cleanupGL() {
+  vao.destroy();
+  vertexBuffer.destroy();
+  indexBuffer.destroy();
+}
+
+void glView::reinitializeOpenGL() {
+  makeCurrent();   // Сделать контекст текущим
+  cleanupGL();     // Очистка старых ресурсов
+  initializeGL();  // Переинициализация ресурсов
+  doneCurrent();  // Завершение использования текущего контекста
+  update();       // Перерисовка виджета
 }
 
 glView::~glView() {

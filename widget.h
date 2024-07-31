@@ -46,6 +46,9 @@ class glView : public QOpenGLWidget, protected QOpenGLFunctions {
   float rotationAngleX;
   float rotationAngleY;
 
+  void cleanupGL();
+  void reinitializeOpenGL();
+
  private slots:
   void openFileDialog();  // Слот для открытия диалога выбора файла
  private:
