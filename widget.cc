@@ -3,16 +3,21 @@
 #include <QMatrix4x4>
 #include <QTimerEvent>
 #include <QVector3D>
-#include <iostream>
 
 glView::glView()
     : vertexBuffer(QOpenGLBuffer::VertexBuffer),
-      indexBuffer(QOpenGLBuffer::IndexBuffer) {
+      indexBuffer(QOpenGLBuffer::IndexBuffer),
+      line_size(1.0f),
+      point_size(10.0f),
+      line_color(Qt::blue),
+      background_color(Qt::white) {
   setFixedSize(650, 650);
 }
 
 void glView::initializeGL() {
   initializeOpenGLFunctions();
+  shader_program =
+      createShaderProgram(vertex_shader_source, fragment_shader_source);
 
   FillVertices(vertices, &dod);
   FillIndices(indices, &dod);
@@ -35,7 +40,8 @@ void glView::initializeGL() {
   vao.bind();
   setupVertexAttribs();
 
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(background_color.redF(), background_color.greenF(),
+               background_color.blueF(), 0.0f);
   glEnable(GL_DEPTH_TEST);
 
   // Установка матрицы проекции
@@ -49,12 +55,24 @@ void glView::initializeGL() {
 
 void glView::paintGL() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glUseProgram(shader_program);
 
   // Задание матрицы проекции и вида
   QMatrix4x4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
+  GLuint mvpMatrixLoc = glGetUniformLocation(shader_program, "mvpMatrix");
+  glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, mvpMatrix.constData());
+
+  // Передача цвета в шейдер
+  GLuint colorLoc = glGetUniformLocation(shader_program, "lineColor");
+  glUniform3f(colorLoc, line_color.redF(), line_color.greenF(),
+              line_color.blueF());
+
   glMatrixMode(GL_PROJECTION);
   glLoadMatrixf(mvpMatrix.constData());
+
+  glLineWidth(line_size);
+  glPointSize(point_size);
 
   vao.bind();
   glDrawElements(GL_LINES, f_count, GL_UNSIGNED_INT, nullptr);
@@ -115,11 +133,37 @@ void glView::cleanupGL() {
 }
 
 void glView::reinitializeOpenGL() {
-  makeCurrent();   // Сделать контекст текущим
-  cleanupGL();     // Очистка старых ресурсов
-  initializeGL();  // Переинициализация ресурсов
-  doneCurrent();  // Завершение использования текущего контекста
-  update();       // Перерисовка виджета
+  makeCurrent();
+  cleanupGL();
+  initializeGL();
+  doneCurrent();
+  update();
+}
+
+GLuint glView::compileShader(GLenum type, const char* source) {
+  GLuint shader = glCreateShader(type);
+  glShaderSource(shader, 1, &source, nullptr);
+  glCompileShader(shader);
+
+  return shader;
+}
+
+// Функция для создания шейдерной программы
+GLuint glView::createShaderProgram(const char* vertexSource,
+                                   const char* fragmentSource) {
+  GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);
+  GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSource);
+
+  GLuint shaderProgram = glCreateProgram();
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+
+  // удаляем шейдеры после линковки тк они больше не нужны
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+
+  return shaderProgram;
 }
 
 glView::~glView() {

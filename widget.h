@@ -49,6 +49,10 @@ class glView : public QOpenGLWidget, protected QOpenGLFunctions {
   void cleanupGL();
   void reinitializeOpenGL();
 
+  GLuint compileShader(GLenum type, const char* source);
+  GLuint createShaderProgram(const char* vertexSource,
+                             const char* fragmentSource);
+
  private slots:
   void openFileDialog();  // Слот для открытия диалога выбора файла
  private:
@@ -57,10 +61,33 @@ class glView : public QOpenGLWidget, protected QOpenGLFunctions {
   int v_count;
   int f_count;
 
+  float line_size;
+  float point_size;
+  QColor line_color;
+  QColor background_color;
+
+ public:
+  static const inline char* vertex_shader_source = R"(
+    #version 120
+    attribute vec3 aPos;
+    uniform mat4 mvpMatrix;
+    void main() {
+        gl_Position = mvpMatrix * vec4(aPos, 1.0);
+    }
+  )";
+  static const inline char* fragment_shader_source = R"(
+    #version 120
+    uniform vec3 lineColor;
+    void main() {
+        gl_FragColor = vec4(lineColor, 1.0);
+    }
+  )";
+
   void updateRotation();
 
  public:
   dot_obj_data dod;
+  GLuint shader_program;
 };
 
 #endif  // WIDGET_H

@@ -47,7 +47,7 @@ int parse_v_and_f(FILE* f, dot_obj_data* dod) {
           if (vertex_index < 0) {
             vertex_index += v_counter + 1;
           }
-          vertex_index--;  // Convert to 0-based index
+          vertex_index--;
 
           if (first_index == -1) {
             first_index = vertex_index;
@@ -94,31 +94,28 @@ int dodalloc(dot_obj_data* dod) {
 
 void count_v_and_f(FILE* f, dot_obj_data* dod) {
   size_t vertex_count = 0;
-  size_t index_count = 0;  // Количество индексов
-
+  size_t index_count = 0;
   char* line = NULL;
   size_t len = 0;
 
   while (getline(&line, &len, f) != -1) {
-    line[strcspn(line, "\n")] = '\0';  // Удаление символа новой строки
+    line[strcspn(line, "\n")] = '\0';
 
     if (line[0] == '#' || line[0] == '\0') {
-      continue;  // Пропуск комментариев и пустых строк
+      continue;
     }
 
     if (line[0] == 'v' && line[1] == ' ') {
-      vertex_count++;  // Подсчет вершин
+      vertex_count++;
     } else if (line[0] == 'f' && line[1] == ' ') {
-      // Подсчет индексов
       size_t count = 0;
-      char* token = strtok(line + 2, " ");  // Пропускаем 'f '
+      char* token = strtok(line + 2, " ");
 
       while (token != NULL) {
         count++;
         token = strtok(NULL, " ");
       }
 
-      // Считаем количество индексов для текущей строки
       index_count += count;
     }
   }
@@ -146,5 +143,4 @@ void print_dod(dot_obj_data* dod) {
   for (int i = 0; i < ((int)dod->f_count); i++) {
     printf("%d ", dod->faces[i]);
   }
-  // printf("%d %d\n", dod->faces[dod->f_count - 1], dod->faces[0]);
 }

@@ -200,6 +200,15 @@ void MainWindow::yMoveChanged(int val) {
   my_gl->updateVertexCoordinates(my_gl->vertices);
 }
 
+void MainWindow::zMoveChanged(int val) {
+  int delta = val - prev_z_move;
+  qDebug() << "zMoveChanged delta:" << delta;
+  prev_z_move = val;
+  move_vertices(&(my_gl->dod), delta, MOVE_Z);
+  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
+  my_gl->updateVertexCoordinates(my_gl->vertices);
+}
+
 void MainWindow::ScaleSub() {
   scale_vertices(&(my_gl->dod), -scale_val);
   my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
@@ -208,15 +217,6 @@ void MainWindow::ScaleSub() {
 
 void MainWindow::ScaleAdd() {
   scale_vertices(&(my_gl->dod), scale_val);
-  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
-  my_gl->updateVertexCoordinates(my_gl->vertices);
-}
-
-void MainWindow::zMoveChanged(int val) {
-  int delta = val - prev_z_move;
-  qDebug() << "zMoveChanged delta:" << delta;
-  prev_z_move = val;
-  move_vertices(&(my_gl->dod), delta, MOVE_Z);
   my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
   my_gl->updateVertexCoordinates(my_gl->vertices);
 }
