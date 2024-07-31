@@ -8,24 +8,34 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), my_gl(new glView()) {
+    : QMainWindow(parent),
+      my_gl(new glView()),
+      prev_x_rot(50),
+      prev_y_rot(50),
+      prev_z_rot(50),
+      prev_x_move(50),
+      prev_y_move(50),
+      prev_z_move(50),
+      scale_val(5) {
   but = new QPushButton("Upload model");
   connect(but, &QPushButton::clicked, this, &MainWindow::openFileDialog);
-  scale_sub = new QPushButton("-");
-  scale_add = new QPushButton("+");
+  scale_sub_but = new QPushButton("-");
+  scale_add_but = new QPushButton("+");
+
   slrotate_x = new QScrollBar(Qt::Horizontal);
   slrotate_y = new QScrollBar(Qt::Horizontal);
   slrotate_z = new QScrollBar(Qt::Horizontal);
-  slrotate_x->setValue(50);
-  slrotate_y->setValue(50);
-  slrotate_z->setValue(50);
+  // slrotate_x->setRange(0, 200);
+  slrotate_x->setValue(prev_x_rot);
+  slrotate_y->setValue(prev_y_rot);
+  slrotate_z->setValue(prev_z_rot);
 
   slmove_x = new QScrollBar(Qt::Horizontal);
   slmove_y = new QScrollBar(Qt::Horizontal);
   slmove_z = new QScrollBar(Qt::Horizontal);
-  slmove_x->setValue(50);
-  slmove_y->setValue(50);
-  slmove_z->setValue(50);
+  slmove_x->setValue(prev_x_move);
+  slmove_y->setValue(prev_y_move);
+  slmove_z->setValue(prev_z_move);
   QLabel *label_x_sub = new QLabel("X-");
   QLabel *label_y_sub = new QLabel("Y-");
   QLabel *label_z_sub = new QLabel("Z-");
@@ -67,8 +77,8 @@ MainWindow::MainWindow(QWidget *parent)
 
   /*************************************/
   scale_layout->addSpacerItem(leftSpacer);
-  scale_layout->addWidget(scale_sub);
-  scale_layout->addWidget(scale_add);
+  scale_layout->addWidget(scale_sub_but);
+  scale_layout->addWidget(scale_add_but);
   scale_layout->addSpacerItem(rightSpacer);
   scale_group->setLayout(scale_layout);
   /*************************************/
@@ -117,6 +127,20 @@ MainWindow::MainWindow(QWidget *parent)
   main_layout->addWidget(rotate_group);
   main_layout->addWidget(move_group);
   setCentralWidget(centralWidget);
+
+  connect(scale_sub_but, &QPushButton::pressed, this, &MainWindow::ScaleSub);
+  connect(scale_add_but, &QPushButton::pressed, this, &MainWindow::ScaleAdd);
+
+  connect(slrotate_x, &QScrollBar::valueChanged, this,
+          &MainWindow::xRotateChanged);
+  connect(slrotate_y, &QScrollBar::valueChanged, this,
+          &MainWindow::yRotateChanged);
+  connect(slrotate_z, &QScrollBar::valueChanged, this,
+          &MainWindow::zRotateChanged);
+
+  connect(slmove_x, &QScrollBar::valueChanged, this, &MainWindow::xMoveChanged);
+  connect(slmove_y, &QScrollBar::valueChanged, this, &MainWindow::yMoveChanged);
+  connect(slmove_z, &QScrollBar::valueChanged, this, &MainWindow::zMoveChanged);
 }
 
 void MainWindow::openFileDialog() {
@@ -127,6 +151,63 @@ void MainWindow::openFileDialog() {
     // Вы можете использовать filePath для загрузки или обработки файла
     qDebug() << "Selected file path:" << filePath;
   }
+}
+
+void MainWindow::xRotateChanged(int val) {
+  int delta = val - prev_x_rot;
+  qDebug() << "xRotateChanged delta:" << delta;
+  prev_x_rot = val;
+}
+
+void MainWindow::yRotateChanged(int val) {
+  int delta = val - prev_y_rot;
+  qDebug() << "yRotateChanged delta:" << delta;
+  prev_y_rot = val;
+}
+
+void MainWindow::zRotateChanged(int val) {
+  int delta = val - prev_z_rot;
+  qDebug() << "zRotateChanged delta:" << delta;
+  prev_z_rot = val;
+}
+
+void MainWindow::xMoveChanged(int val) {
+  int delta = val - prev_x_move;
+  qDebug() << "xMoveChanged delta:" << delta;
+  prev_x_move = val;
+  move_vertices(&(my_gl->dod), delta, MOVE_X);
+  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
+  my_gl->updateVertexCoordinates(my_gl->vertices);
+}
+
+void MainWindow::yMoveChanged(int val) {
+  int delta = val - prev_y_move;
+  qDebug() << "yMoveChanged delta:" << delta;
+  prev_y_move = val;
+  move_vertices(&(my_gl->dod), delta, MOVE_Y);
+  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
+  my_gl->updateVertexCoordinates(my_gl->vertices);
+}
+
+void MainWindow::ScaleSub() {
+  scale_vertices(&(my_gl->dod), -scale_val);
+  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
+  my_gl->updateVertexCoordinates(my_gl->vertices);
+}
+
+void MainWindow::ScaleAdd() {
+  scale_vertices(&(my_gl->dod), scale_val);
+  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
+  my_gl->updateVertexCoordinates(my_gl->vertices);
+}
+
+void MainWindow::zMoveChanged(int val) {
+  int delta = val - prev_z_move;
+  qDebug() << "zMoveChanged delta:" << delta;
+  prev_z_move = val;
+  move_vertices(&(my_gl->dod), delta, MOVE_Z);
+  my_gl->FillVertices(my_gl->vertices, &(my_gl->dod));
+  my_gl->updateVertexCoordinates(my_gl->vertices);
 }
 
 MainWindow::~MainWindow() {

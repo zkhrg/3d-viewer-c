@@ -15,14 +15,29 @@ class MainWindow : public QMainWindow {
   ~MainWindow();
  private slots:
   void openFileDialog();
+  void xRotateChanged(int val);
+  void yRotateChanged(int val);
+  void zRotateChanged(int val);
+  void xMoveChanged(int val);
+  void yMoveChanged(int val);
+  void zMoveChanged(int val);
+  void ScaleSub();
+  void ScaleAdd();
 
  private:
   glView *my_gl;
-  QPushButton *but, *scale_sub, *scale_add;
+  QPushButton *but, *scale_sub_but, *scale_add_but;
   QScrollBar *slscale, *slrotate_x, *slrotate_y, *slrotate_z, *slmove_x,
       *slmove_y, *slmove_z;
   QGroupBox *groupBox;
   QString filePath;
+  int prev_x_rot;
+  int prev_y_rot;
+  int prev_z_rot;
+  int prev_x_move;
+  int prev_y_move;
+  int prev_z_move;
+  int scale_val;
 };
 
 #endif  // MAINWINDOW_H

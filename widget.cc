@@ -11,16 +11,14 @@ glView::glView()
       rotationAngleX(0.0f),
       rotationAngleY(0.0f) {
   setFixedSize(650, 650);
+  parse_dot_obj_file("/Users/diamondp/Desktop/pik.obj", &dod);
 }
 
 void glView::initializeGL() {
   initializeOpenGLFunctions();
 
-  // Вершины куба
-  QVector<QVector3D> vertices;
-  QVector<GLuint> indices;
-  dot_obj_data dod;
-  parse_dot_obj_file("/Users/diamondp/Desktop/model/model.obj", &dod);
+  // move_vertices(&dod, -10, MOVE_X);
+  // move_vertices(&dod, 10, MOVE_Z);
   FillVertices(vertices, &dod);
   FillIndices(indices, &dod);
 
@@ -67,6 +65,7 @@ void glView::paintGL() {
   vao.bind();
   glDrawElements(GL_LINES, f_count, GL_UNSIGNED_INT, nullptr);
   glDrawArrays(GL_POINTS, 0, v_count);
+  update();
 }
 
 void glView::setupVertexAttribs() {
@@ -104,6 +103,21 @@ void glView::FillIndices(QVector<GLuint>& indices, dot_obj_data* dod) {
   for (int i = 0; i < (int)dod->f_count; i++) {
     indices.append(static_cast<GLuint>(dod->faces[i]));
   }
+}
+
+void glView::updateVertexCoordinates(const QVector<QVector3D>& vertices) {
+  // Проверяем, что количество вершин совпадает
+  if (vertices.size() != v_count) {
+    qWarning() << "Количество вершин не совпадает!";
+    return;
+  }
+
+  vertexBuffer.bind();
+  glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(QVector3D),
+                  vertices.constData());
+  vertexBuffer.release();
+
+  update();
 }
 
 glView::~glView() {

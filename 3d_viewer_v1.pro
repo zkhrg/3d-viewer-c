@@ -12,11 +12,13 @@ SOURCES += \
     dot_obj_parser.c \
     main.cpp \
     mainwindow.cpp \
+    transformations.c \
     widget.cc
 
 HEADERS += \
     dot_obj_parser.h \
     mainwindow.h \
+    transformations.h \
     types.h \
     widget.h
 

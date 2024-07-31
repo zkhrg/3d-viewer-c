@@ -12,6 +12,7 @@
 
 extern "C" {
 #include "dot_obj_parser.h"
+#include "transformations.h"
 #include "types.h"
 }
 
@@ -23,18 +24,24 @@ class glView : public QOpenGLWidget, protected QOpenGLFunctions {
   void initializeGL() override;
   void paintGL() override;
 
- private:
+ public:
   void setupVertexAttribs();
 
   QMatrix4x4 projectionMatrix;
   QMatrix4x4 viewMatrix;
   QMatrix4x4 modelMatrix;
+  // Вершины куба
+  QVector<QVector3D> vertices;
+  QVector<GLuint> indices;
 
   QOpenGLBuffer vertexBuffer;
   QOpenGLVertexArrayObject vao;
   QOpenGLBuffer indexBuffer;
   void FillVertices(QVector<QVector3D>& vertices, dot_obj_data* dod);
   void FillIndices(QVector<GLuint>& indices, dot_obj_data* dod);
+
+ public:
+  void updateVertexCoordinates(const QVector<QVector3D>& vertices);
 
   float rotationAngleX;
   float rotationAngleY;
@@ -48,6 +55,9 @@ class glView : public QOpenGLWidget, protected QOpenGLFunctions {
   int f_count;
 
   void updateRotation();
+
+ public:
+  dot_obj_data dod;
 };
 
 #endif  // WIDGET_H
