@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QMainWindow>
 #include <QPushButton>
 #include <QScrollBar>
@@ -31,6 +33,15 @@ class MainWindow : public QMainWindow {
       *slmove_y, *slmove_z;
   QGroupBox *groupBox;
   QString filePath;
+  QLabel *label_x_sub, *label_y_sub, *label_z_sub, *label_x_add, *label_y_add,
+      *label_z_add, *label_x_sub1, *label_y_sub1, *label_z_sub1, *label_x_add1,
+      *label_y_add1, *label_z_add1;
+  QHBoxLayout *rot_x_layout, *rot_y_layout, *rot_z_layout, *move_x_layout,
+      *move_y_layout, *move_z_layout, *scale_layout;
+  QWidget *central_widget;
+  QVBoxLayout *main_layout, *rotate_layout, *move_layout;
+  QGroupBox *scale_group, *rotate_group, *move_group;
+  QSpacerItem *left_spacer, *right_spacer;
   int prev_x_rot;
   int prev_y_rot;
   int prev_z_rot;

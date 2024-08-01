@@ -8,6 +8,8 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
 #include <QPushButton>
+#include <QTimerEvent>
+#include <QVector3D>
 #include <QWidget>
 
 extern "C" {
@@ -19,54 +21,44 @@ extern "C" {
 class glView : public QOpenGLWidget, protected QOpenGLFunctions {
  public:
   glView();
+  enum class eCoord { X, Y, Z };
+  void MoveVertices(int delta, eCoord coord);
+  void RotateVertices(int delta, eCoord coord);
+  void ScaleVertices(int delta);
+  void ReinitializeOpenGL(QString fp);
   ~glView();
 
-  void initializeGL() override;
-  void paintGL() override;
-
- public:
-  void setupVertexAttribs();
-
+ private:
   QMatrix4x4 projectionMatrix;
   QMatrix4x4 viewMatrix;
   QMatrix4x4 modelMatrix;
-  // Вершины куба
   QVector<QVector3D> vertices;
   QVector<GLuint> indices;
-
   QOpenGLBuffer vertexBuffer;
   QOpenGLVertexArrayObject vao;
   QOpenGLBuffer indexBuffer;
-  void FillVertices(QVector<QVector3D>& vertices, dot_obj_data* dod);
-  void FillIndices(QVector<GLuint>& indices, dot_obj_data* dod);
-
- public:
-  void updateVertexCoordinates(const QVector<QVector3D>& vertices);
-
-  float rotationAngleX;
-  float rotationAngleY;
-
-  void cleanupGL();
-  void reinitializeOpenGL();
-
   GLuint compileShader(GLenum type, const char* source);
   GLuint createShaderProgram(const char* vertexSource,
                              const char* fragmentSource);
+  GLuint shader_program;
 
- private slots:
-  void openFileDialog();  // Слот для открытия диалога выбора файла
- private:
-  QString filePath;  // Поле для хранения пути к файлу
+  void initializeGL() override;
+  void paintGL() override;
+  void setupVertexAttribs();
+  void FillVertices(QVector<QVector3D>& vertices, dot_obj_data* dod);
+  void FillIndices(QVector<GLuint>& indices, dot_obj_data* dod);
+  void UpdateVertexCoordinates(const QVector<QVector3D>& vertices);
+  void cleanupGL();
 
   int v_count;
   int f_count;
-
+  dot_obj_data dod;
+  QString file_path;  // Поле для хранения пути к файлу
   float line_size;
   float point_size;
   QColor line_color;
   QColor background_color;
 
- public:
   static const inline char* vertex_shader_source = R"(
     #version 120
     attribute vec3 aPos;
@@ -83,11 +75,8 @@ class glView : public QOpenGLWidget, protected QOpenGLFunctions {
     }
   )";
 
-  void updateRotation();
-
- public:
-  dot_obj_data dod;
-  GLuint shader_program;
+ private slots:
+  void openFileDialog();  // Слот для открытия диалога выбора файла
 };
 
 #endif  // WIDGET_H

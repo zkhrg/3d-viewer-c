@@ -124,13 +124,16 @@ void count_v_and_f(FILE* f, dot_obj_data* dod) {
 
   dod->v_count = vertex_count;
   dod->f_count = index_count * 2;
+}
 
-  printf("Number of vertices: %zu\n", vertex_count);
-  printf("Number of indices: %zu\n", index_count);
+void free_dod(dot_obj_data* dod) {
+  if (dod) {
+    if (dod->faces) free(dod->faces);
+    if (dod->vertices) free(dod->vertices);
+  }
 }
 
 void print_dod(dot_obj_data* dod) {
-  // printing vertices
   printf("Amount of vertex: %ld\n", dod->v_count);
   for (int i = 0; i < (int)dod->v_count * 3; i++) {
     printf("%lf ", dod->vertices[i]);

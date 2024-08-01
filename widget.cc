@@ -1,8 +1,5 @@
+#define GL_SILENCE_DEPRECATION
 #include "widget.h"
-
-#include <QMatrix4x4>
-#include <QTimerEvent>
-#include <QVector3D>
 
 glView::glView()
     : vertexBuffer(QOpenGLBuffer::VertexBuffer),
@@ -24,8 +21,6 @@ void glView::initializeGL() {
 
   v_count = dod.v_count;
   f_count = dod.f_count;
-
-  qWarning() << v_count;
 
   vertexBuffer.create();
   vertexBuffer.bind();
@@ -50,7 +45,7 @@ void glView::initializeGL() {
 
   // Установка матрицы вида
   viewMatrix.setToIdentity();
-  viewMatrix.translate(0, 0, -3);
+  viewMatrix.translate(0, 0, -10);  // start point of view
 }
 
 void glView::paintGL() {
@@ -111,13 +106,7 @@ void glView::FillIndices(QVector<GLuint>& indices, dot_obj_data* dod) {
   }
 }
 
-void glView::updateVertexCoordinates(const QVector<QVector3D>& vertices) {
-  // Проверяем, что количество вершин совпадает
-  if (vertices.size() != v_count) {
-    qWarning() << "Количество вершин не совпадает!";
-    return;
-  }
-
+void glView::UpdateVertexCoordinates(const QVector<QVector3D>& vertices) {
   vertexBuffer.bind();
   glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(QVector3D),
                   vertices.constData());
@@ -132,7 +121,10 @@ void glView::cleanupGL() {
   indexBuffer.destroy();
 }
 
-void glView::reinitializeOpenGL() {
+void glView::ReinitializeOpenGL(QString fp) {
+  file_path = fp;
+  free_dod(&dod);
+  parse_dot_obj_file(file_path.toStdString().c_str(), &dod);
   makeCurrent();
   cleanupGL();
   initializeGL();
@@ -148,7 +140,6 @@ GLuint glView::compileShader(GLenum type, const char* source) {
   return shader;
 }
 
-// Функция для создания шейдерной программы
 GLuint glView::createShaderProgram(const char* vertexSource,
                                    const char* fragmentSource) {
   GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);
@@ -166,9 +157,48 @@ GLuint glView::createShaderProgram(const char* vertexSource,
   return shaderProgram;
 }
 
+void glView::MoveVertices(int delta, eCoord coord) {
+  switch (coord) {
+    case eCoord::X:
+      move_vertices(&dod, delta, MOVE_X);
+      break;
+    case eCoord::Y:
+      move_vertices(&dod, delta, MOVE_Y);
+      break;
+    case eCoord::Z:
+      move_vertices(&dod, delta, MOVE_Z);
+      break;
+  }
+  FillVertices(vertices, &dod);
+  UpdateVertexCoordinates(vertices);
+}
+
+void glView::RotateVertices(int delta, eCoord coord) {
+  switch (coord) {
+    case eCoord::X:
+      rotate_x(&dod, (double)delta);
+      break;
+    case eCoord::Y:
+      rotate_y(&dod, (double)delta);
+      break;
+    case eCoord::Z:
+      rotate_z(&dod, (double)delta);
+      break;
+  }
+  FillVertices(vertices, &dod);
+  UpdateVertexCoordinates(vertices);
+}
+
+void glView::ScaleVertices(int delta) {
+  scale_vertices(&dod, delta);
+  FillVertices(vertices, &dod);
+  UpdateVertexCoordinates(vertices);
+}
+
 glView::~glView() {
   makeCurrent();
   vertexBuffer.destroy();
   indexBuffer.destroy();
   doneCurrent();
+  free_dod(&dod);
 }
