@@ -22,7 +22,7 @@ endif
 all: install run
 
 run:
-	@$(RUN_COMMAND) ../build/$(RESULT)  
+	$(RUN_COMMAND) ../build/$(RESULT)  
 
 install:
 	@mkdir -p ../build
@@ -36,7 +36,7 @@ clean: clean_exec clean_obj clean_gcov clean_lcov clean_lcov_report clean_dist
 	@echo "Clean finished"
 
 dvi:
-	$(OPEN_COMMAND) ../dvi/README.html	
+	$(OPEN_COMMAND) ../dvi/3d_viewer_c_about.html	
 
 dist: clean_dist
 	cd ../ && mkdir -p ${DIST_DIR}
