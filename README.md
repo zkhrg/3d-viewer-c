@@ -1,4 +1,4 @@
-## 3DViewer_v1.0 @diamondp(zkhrg)</h2>
+## 3DViewer_v1.0 @zkhrg</h2>
 
 <table>
     <tr>
@@ -12,8 +12,6 @@
         </td>
     </tr>
 </table>
-
-# 3DViewer v1.0
 
 ## Описание
 
