@@ -17,6 +17,45 @@
 
 3DViewer v1.0 — это приложение для визуализации каркасных 3D-моделей. Программа загружает модели из файлов формата .obj и предоставляет возможность их просмотра с поддержкой таких операций, как вращение, масштабирование и перемещение. Модели отображаются в каркасном виде с минимальной задержкой, даже для моделей с большим количеством вершин.
 
+## Структура проекта
+
+```txt
+.
+├── README.md
+├── build
+├── dvi
+│   ├── 3d_viewer_c_about.html
+│   ├── Varela-Regular.ttf
+│   └── dvi.webp
+└── src
+    ├── Makefile
+    ├── c_core
+    │   ├── dot_obj_parser.c
+    │   ├── dot_obj_parser.h
+    │   ├── transformations.c
+    │   └── transformations.h
+    ├── common
+    │   └── types.h
+    ├── tests
+    │   ├── obj_files
+    │   │   ├── cube.obj
+    │   │   ├── pik.obj
+    │   │   ├── plant.obj
+    │   │   ├── skull.obj
+    │   │   └── test.obj
+    │   ├── test.c
+    │   ├── test.h
+    │   ├── test_dot_obj_parser.c
+    │   └── test_transformations.c
+    └── views
+        ├── 3d_viewer_v1.pro
+        ├── main.cc
+        ├── mainwindow.cc
+        ├── mainwindow.h
+        ├── widget.cc
+        └── widget.h
+```
+
 ## Основные возможности
 
 - Загрузка каркасной модели из файла формата .obj (поддержка вершин и рёбер).
